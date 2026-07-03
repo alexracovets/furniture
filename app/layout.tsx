@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Geist } from 'next/font/google';
 
 import '@styles';
+import type { ChildrenType } from '@types';
 import { cn } from '@utils';
 
 const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
@@ -14,7 +15,7 @@ export const metadata: Metadata = {
   },
 };
 
-const RootLayout = ({ children }: React.PropsWithChildren) => {
+const RootLayout = ({ children }: ChildrenType) => {
   return (
     <html lang="en" className={cn('min-h-full antialiased bg-white font-sans', geist.variable)}>
       <body className="min-h-full">{children}</body>

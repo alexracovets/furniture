@@ -45,6 +45,22 @@ const eslintConfig = defineConfig([
   },
   eslintConfigPrettier,
   {
+    files: ['src/types/**/*.ts', 'src/configurator/types/**/*.ts'],
+    rules: {
+      '@typescript-eslint/naming-convention': [
+        'error',
+        {
+          selector: ['typeAlias', 'interface'],
+          format: ['PascalCase'],
+          custom: {
+            regex: 'Type$',
+            match: true,
+          },
+        },
+      ],
+    },
+  },
+  {
     files: ['src/store/**/*.{ts,tsx}'],
     rules: {
       'no-restricted-imports': [

@@ -10,7 +10,10 @@
     "lint:fix": "eslint src scripts --fix --no-warn-ignored",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "validate": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm verify:architecture",
+    "verify:architecture": "node scripts/verify-architecture.mjs",
+    "scan:module-structure": "node scripts/scan-module-structure.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",

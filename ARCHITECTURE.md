@@ -29,21 +29,36 @@ The codebase separates concerns into three axes:
 
 ```
 furniture/
-├── app/                    # Next.js App Router — thin route files, no business logic
-├── public/                 # Static assets: GLTF models, textures, images 
+├── .vscode/                # Editor: Tailwind v4 CSS lint, IntelliSense
+├── app/                    # Next.js App Router — thin route files
+│   ├── layout.tsx          # Root layout, fonts, metadata, favicon
+│   └── page.tsx            # / → HomePage
+├── public/
+│   └── favicon.ico         # Static favicon (referenced via metadata.icons)
+├── scripts/                # Architecture guard, module-structure scanner
 ├── src/
-│   ├── configurator/       # 3D module (implementation TBD)
-│   ├── constants/          # Immutable configuration values
-│   ├── data/               # Product JSON catalogs and content
-│   ├── fonts/              # UI fonts
-│   ├── hooks/              # App-level React hooks (non-3D)
-│   ├── providers/          # App-level React context
-│   ├── shopify/            # Shopify Storefront / Admin API integration
-│   ├── store/              # Zustand stores (global state)
-│   ├── types/              # Shared TypeScript types (entities, UI, cart, …)
-│   ├── ui/                 # UI components (Atomic Design)
-│   └── utils/              # App utilities (catalog, checkout, routes)
-└── ARCHITECTURE.md         # This document
+│   ├── configurator/       # 3D module scaffold (types only for now)
+│   │   ├── index.ts
+│   │   └── types/
+│   ├── constants/          # Immutable configuration values (empty barrel)
+│   ├── data/               # Product JSON catalogs (.gitkeep)
+│   ├── fonts/              # UI fonts (fonts.css + barrel)
+│   ├── hooks/              # App-level React hooks (empty barrel)
+│   ├── providers/          # App-level React context (empty barrel)
+│   ├── shopify/            # Shopify integration (empty barrel)
+│   ├── store/              # Zustand stores (empty barrel)
+│   ├── types/              # Shared TypeScript types (scaffold)
+│   ├── ui/
+│   │   ├── components/
+│   │   │   ├── atomic/     # atoms, molecules, organisms, templates, pages
+│   │   │   ├── shared/     # shadcn/Radix primitives (empty barrel)
+│   │   │   └── skeletons/  # Loading skeletons (empty barrel)
+│   │   └── styles/
+│   │       └── globals.css # Tailwind v4 + shadcn theme
+│   └── utils/
+│       └── cn/             # clsx + tailwind-merge helper
+├── AGENTS.md
+└── ARCHITECTURE.md
 ```
 
 ---
@@ -52,15 +67,15 @@ furniture/
 
 All UI lives under `src/ui/` and follows Atomic Design tiers.
 
-| Layer         | Path                                  | Alias        | Responsibility                                              |
-| ------------- | ------------------------------------- | ------------ | ----------------------------------------------------------- |
-| **Atoms**     | `src/ui/components/atomic/atoms/`     | `@atoms`     | Smallest blocks: `Button`, `AtomInput`, `ColorPicker`, …    |
-| **Molecules** | `src/ui/components/atomic/molecules/` | `@molecules` | Step panels, form groups, configuration controls            |
-| **Organisms** | `src/ui/components/atomic/organisms/` | `@organisms` | `AsideConfiguration`, `ConfiguratorView`, header/footer     |
-| **Templates** | `src/ui/components/atomic/templates/` | `@templates` | Page layouts without data coupling                          |
-| **Pages**     | `src/ui/components/atomic/pages/`     | `@pages`     | `HomePage`, `ConfiguratorPage`, `CheckoutPage`              |
-| **Shared**    | `src/ui/components/shared/`           | `@shared`    | shadcn/Radix primitives (`Dialog`, `Accordion`, …)          |
-| **Skeletons** | `src/ui/components/skeletons/`        | `@skeletons` | Loading skeletons mirroring configurator/checkout layouts     |
+| Layer         | Path                                  | Alias        | Current state                                                |
+| ------------- | ------------------------------------- | ------------ | ------------------------------------------------------------ |
+| **Atoms**     | `src/ui/components/atomic/atoms/`     | `@atoms`     | Empty barrel                                                 |
+| **Molecules** | `src/ui/components/atomic/molecules/` | `@molecules` | Empty barrel                                                 |
+| **Organisms** | `src/ui/components/atomic/organisms/` | `@organisms` | Empty barrel                                                 |
+| **Templates** | `src/ui/components/atomic/templates/` | `@templates` | Empty barrel                                                 |
+| **Pages**     | `src/ui/components/atomic/pages/`     | `@pages`     | `HomePage`                                                   |
+| **Shared**    | `src/ui/components/shared/`           | `@shared`    | Empty barrel                                                 |
+| **Skeletons** | `src/ui/components/skeletons/`        | `@skeletons` | Empty barrel                                                 |
 
 ### UI conventions
 
@@ -69,7 +84,7 @@ All UI lives under `src/ui/` and follows Atomic Design tiers.
 3. **Molecules** may read stores and use hooks from `@hooks`.
 4. **Organisms** compose molecules/atoms; the 3D organism does **not** embed scene code.
 5. **Skeletons** match target layouts; visibility via dedicated skeleton hooks.
-6. **HTML component prop types** live in `src/types/ui/`.
+6. **HTML component prop types** live in `src/types/ui/` and follow [Type naming](#type-naming).
 7. **Every component** uses folder + `index.ts` barrel: `ComponentName/ComponentName.tsx` + `index.ts`.
 
 ---
@@ -81,24 +96,17 @@ All UI lives under `src/ui/` and follows Atomic Design tiers.
 App-level React hooks (navigation, checkout, cart sync, skeletons, catalog preload).  
 3D hooks live in `@configurator/hooks` only.
 
+Currently an **empty barrel** — add hooks as `useHookName/useHookName.ts` + `index.ts`.
+
 > Zustand stores in `src/store/` are named `use*` but are **not** React hooks.
 
 ### `src/store/` (`@store`)
 
-Domain-scoped Zustand stores — one store per domain concern:
+Domain-scoped Zustand stores — one store per domain concern.
 
-| Store                      | Responsibility (scaffold)        |
-| -------------------------- | -------------------------------- |
-| `useConfiguratorProduct`   | Active catalog product           |
-| `useConfigurationControl`  | Wizard steps and navigation      |
-| `useConfigurationCart`     | Session configuration cart       |
-| `useFurnitureMaterial`     | Material / finish selection      |
-| `useFurniturePart`         | Part-level configuration         |
-| `useConfiguratorSceneLoad` | 3D scene loading state           |
-| `useCheckout`              | Checkout rows and pricing        |
-| `useInfoDialog`            | Info modal state                 |
+Currently an **empty barrel** — planned stores include `useConfiguratorProduct`, `useConfigurationCart`, `useFurnitureMaterial`, `useFurniturePart`, `useCheckout`, etc.
 
-Each store is a folder: `useStoreName/useStoreName.ts` + `index.ts`. Helpers live in **their own subfolders** with `index.ts` — not as loose files next to sibling subfolders.
+Each store is a folder: `useStoreName/useStoreName.ts` + `index.ts`. Helpers live in **their own subfolders** with `index.ts`.
 
 ### `src/types/` (`@types`)
 
@@ -106,43 +114,51 @@ Shared types not owned by the 3D module:
 
 ```
 src/types/
-├── cart/           # Cart items, configuration snapshots
-├── checkout/       # Checkout table, summary
-├── entities/       # Types derived from JSON catalogs (source of truth)
-│   ├── catalog/    # modelId, collection summaries
-│   └── furniture/  # furnitureConfigType, business data
-├── furniture/      # Runtime furniture types composed from entities
-│   ├── material/
-│   └── part/
-├── ui/             # HTML component props, variant unions
+├── cart/                   # CartItemType, ConfigurationSnapshotType
+├── checkout/               # CheckoutRowType, CheckoutSummaryType
+├── entities/
+│   ├── catalog/            # ModelIdType, CollectionSummaryType
+│   └── furniture/          # FurnitureConfigType, FurnitureBusinessType
+├── furniture/
+│   ├── material/           # MaterialInstanceType
+│   └── part/               # PartInstanceType
+├── ui/
+│   └── ChildrenType/       # ChildrenType
 └── index.ts
 ```
 
+3D-specific types live in `@configurator/types` (e.g. `ConfiguratorSceneStateType`).
+
 ### `src/utils/` (`@utils`)
 
-App-wide pure utilities: catalog accessors, checkout dates, route helpers.  
+App-wide pure utilities. Currently exports `cn` from `utils/cn/`.  
 3D utilities live in `@configurator/utils` only.
 
 ### `src/shopify/` (`@shopify`)
 
-Shopify Storefront / Admin GraphQL, collection and product resolution, checkout cart creation.
+Shopify Storefront / Admin GraphQL — empty barrel for now.
 
 ### `src/constants/` (`@constants`)
 
-Single barrel file `index.ts` — catalog, UI copy, checkout labels, palette.  
+Single barrel `index.ts` — catalog, UI copy, checkout labels, palette.  
 3D pipeline values live in `@configurator/constants`.
 
 ### `src/providers/` (`@providers`)
 
-App-level React context: embedded mode (`EmbeddedProvider`), shared context helpers.
+App-level React context — empty barrel for now.
 
 ### `src/data/` (`@data`)
 
-JSON product catalogs and modal info content. Catalog accessors live in `@utils`.
+JSON product catalogs and modal info content. Catalog accessors will live in `@utils`.
 
 ### `src/fonts/` (`@fonts`)
 
-UI fonts and CSS `@font-face` rules.
+UI fonts: `fonts.css` + barrel. Imported from `globals.css`.
+
+### `src/configurator/`
+
+3D module scaffold. Public API: `src/configurator/index.ts` re-exports types.  
+Runtime layers (`canvas/`, `scene/`, `runtime/`, …) will be added when the furniture 3D pipeline is implemented.
 
 ---
 
@@ -150,46 +166,44 @@ UI fonts and CSS `@font-face` rules.
 
 ```
 app/
-├── layout.tsx              # Root: fonts, EmbeddedProvider, global styles
-└── page.tsx                # / → HomePage (import from @pages only)
+├── layout.tsx    # Geist font, @styles, metadata + favicon (/favicon.ico from public/)
+└── page.tsx      # / → HomePage (import from @pages only)
 ```
 
 **Thin routes:** `page.tsx` files import from `@pages` only. Layouts may use `@templates`, `@shopify`, `@providers` for shells and data loading.
-
-Route structure will expand as shop and configurator pages are added.
 
 ---
 
 ## Technology stack
 
-| Library                      | Role                                  |
-| ---------------------------- | ------------------------------------- |
-| **Next.js 16**               | SSR/SSG, App Router, routing          |
-| **React 19**                 | UI runtime                            |
-| **TypeScript 5**             | Static typing                         |
-| **Tailwind CSS 4**           | Styling                               |
-| **Zustand**                  | Global client state                   |
-| **React Three Fiber + drei** | 3D canvas, GLTF loading, controls   |
-| **Three.js**                 | Rendering, textures, custom shaders   |
-| **Radix UI / Base UI**       | Accessible primitives (shadcn)        |
-| **Motion**                   | UI animations                         |
-| **ESLint + Prettier**        | Linting, formatting                   |
+| Library                      | Role                                |
+| ---------------------------- | ----------------------------------- |
+| **Next.js 16**               | SSR/SSG, App Router, routing        |
+| **React 19**                 | UI runtime                          |
+| **TypeScript 5**             | Static typing                       |
+| **Tailwind CSS 4**           | Styling (`@theme`, shadcn)          |
+| **Zustand**                  | Global client state                 |
+| **React Three Fiber + drei** | 3D canvas, GLTF loading, controls |
+| **Three.js**                 | Rendering, textures, shaders        |
+| **Radix UI / Base UI**       | Accessible primitives (shadcn)      |
+| **Motion**                   | UI animations                       |
+| **ESLint + Prettier**        | Linting, formatting                 |
 
-> Format-specific libraries (PDF/EPS/TIFF conversion) are **not** included in this project — furniture assets use different import pipelines.
+> Format-specific libraries (PDF/EPS/TIFF conversion) are **not** included — furniture assets use different import pipelines.
 
 ---
 
 ## Scripts & tooling
 
-| Script                    | Description                                                              |
-| ------------------------- | ------------------------------------------------------------------------ |
-| `dev` / `build` / `start` | Next.js development and production                                       |
-| `lint` / `lint:fix`       | ESLint over `src/` and `scripts/`                                        |
-| `format` / `format:check` | Prettier                                                                 |
-| `validate`                | format + lint + `typecheck` + `verify:architecture`                      |
-| `typecheck`               | `tsc --noEmit`                                                           |
-| `verify:architecture`     | Import boundaries + module folder structure (`scripts/verify-architecture.mjs`) |
-| `scan:module-structure`   | Standalone check for module folder pattern                               |
+| Script                    | Description                                                         |
+| ------------------------- | ------------------------------------------------------------------- |
+| `dev` / `build` / `start` | Next.js development and production                                  |
+| `lint` / `lint:fix`       | ESLint over `src/` and `scripts/`                                   |
+| `format` / `format:check` | Prettier                                                            |
+| `validate`                | format + lint + `typecheck` + `verify:architecture`                 |
+| `typecheck`               | `tsc --noEmit`                                                      |
+| `verify:architecture`     | Import boundaries + module folders + type naming                    |
+| `scan:module-structure`   | Standalone module folder pattern check                              |
 
 ---
 
@@ -215,66 +229,59 @@ Defined in `tsconfig.json`:
 | `@configurator`      | `src/configurator`             |
 | `@configurator/*`    | `src/configurator/*` layers    |
 
-**Wildcard subpaths** (sibling modules within the same alias root):
-
-| Pattern          | Example                              |
-| ---------------- | ------------------------------------ |
-| `@molecules/*`   | `@molecules/ConfigurationTools/…`    |
-| `@store/*`       | `@store/useFurnitureMaterial`        |
-| `@utils/*`       | `@utils/furnitureCatalog`            |
-| `@data/*`        | `@data/products/chair.json`          |
-
 ---
 
 ## Conventions
 
+### Type naming
+
+All exported **type aliases** and **interfaces** in `src/types/` and `src/configurator/types/` must:
+
+1. Use **PascalCase**
+2. End with the **`Type`** suffix
+
+| Valid               | Invalid              |
+| ------------------- | -------------------- |
+| `CartItemType`      | `cartItemType`       |
+| `ChildrenType`      | `childrenType`       |
+| `FurnitureConfigType` | `FurnitureConfig`  |
+| `ConfiguratorSceneStateType` | `ConfiguratorSceneState` |
+
+Enforced by:
+
+- ESLint `@typescript-eslint/naming-convention` (scoped to `src/types/**`, `src/configurator/types/**`)
+- `pnpm verify:architecture` (declared type names in those folders)
+
+Component prop types follow the same rule: `HomePagePropsType`, `AsideConfigurationPropsType`, etc.
+
 ### Import rules
 
-| From            | Import via                                      |
-| --------------- | ----------------------------------------------- |
-| User config     | `@store`                                        |
-| Shared types    | `@types`                                        |
-| UI components   | `@atoms`, `@molecules`, `@organisms`, `@pages`  |
-| App utilities   | `@utils`                                        |
-| 3D types (UI)   | `@configurator/types` only from molecules       |
+| From            | Import via                                     |
+| --------------- | ---------------------------------------------- |
+| User config     | `@store`                                       |
+| Shared types    | `@types`                                       |
+| UI components   | `@atoms`, `@molecules`, `@organisms`, `@pages` |
+| App utilities   | `@utils`                                       |
+| 3D types (UI)   | `@configurator/types` only from molecules        |
 
-**Cross-module imports:** use **`@` path aliases** (layer barrels or wildcard subpaths). Relative `import … from '../…'` / `import … from './…'` is **not allowed** in implementation files. **`index.ts` barrel re-exports** may still use `export { X } from './X'`.
-
-ESLint `no-restricted-imports` enforces layer boundaries. `verify:architecture` blocks relative imports, legacy folder paths, and module folder structure violations.
+**Cross-module imports:** use **`@` path aliases**. Relative `import … from '../…'` is **not allowed** in implementation files. **`index.ts` barrel re-exports** may use `export { X } from './X'`.
 
 ### Module folder pattern
 
-Every exportable unit in `src/` follows Atomic-style folders. **Enforced by `verify:architecture`** (`scripts/lib/scan-module-structure.mjs`).
-
-#### Single module
+Every exportable unit in `src/` follows:
 
 ```
 FeatureName/
-├── FeatureName.ts(x)   # primary implementation (name matches folder)
+├── FeatureName.ts(x)   # primary implementation (name matches folder, or section file matches folder name)
 └── index.ts            # export { FeatureName } from './FeatureName'
 ```
 
-#### Section folder (only subfolders + one barrel)
+Section folders (`cart/`, `hooks/`, `store/`) contain only `index.ts` + named subfolder-modules — no loose `.ts` next to subfolders.
 
-At layer roots (`shopify/`, `hooks/`, `store/`, …):
+**Exceptions (no `index.ts` required):** `src/ui`, `src/ui/components`, `src/ui/components/atomic`.
 
-- **Only** `index.ts` and named subfolder-modules — no loose `.ts`/`.tsx` next to subfolders.
-- `index.ts` re-exports public API from child modules.
+Enforced by `pnpm verify:architecture` (`scripts/lib/scan-module-structure.mjs`).
 
-#### Module with helpers
+**Store → configurator:** `@store` may import `@configurator/mappers`, `@configurator/constants`, and the bootstrap facade from `@configurator` — not layer subpaths.
 
-When a module has both a primary file and helpers, helpers get **their own subfolders** (same pattern), not loose siblings.
-
-#### Container-only folder
-
-Folders that contain **only** subfolders (no primary file) must have `index.ts` that re-exports children.
-
-**Exceptions (no `index.ts` required):** organizational roots `src/ui`, `src/ui/components`, `src/ui/components/atomic` — they group atomic layers, not exportable modules. Config files (`config.ts`) and ambient `.d.ts` are exempt.
-
-Applies to: UI components, stores, hooks, Shopify clients, utils, types submodules.
-
-**Store → configurator:** `@store` may import `@configurator/mappers`, `@configurator/constants`, and the **bootstrap facade** from `@configurator`. It must not import `@configurator/utils`, `@configurator/scene`, `runtime`, or `canvas` directly.
-
-**Reverse boundaries:** `@configurator` must not import `@utils`. `@molecules` may import `@configurator/types` only (no runtime/configurator barrels).
-
-**Sibling modules** within the same alias root use **wildcard subpaths** such as `@hooks/useAppNavigate` or `@molecules/ConfigurationTools/ColorControl` — not `../` chains.
+**Reverse boundaries:** `@configurator` must not import `@utils`. `@molecules` may import `@configurator/types` only.
