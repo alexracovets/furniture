@@ -30,8 +30,7 @@ The codebase separates concerns into three axes:
 ```
 furniture/
 ├── app/                    # Next.js App Router — thin route files, no business logic
-├── public/                 # Static assets: GLTF models, textures, images
-├── scripts/                # Node tooling (architecture guard, asset pipeline)
+├── public/                 # Static assets: GLTF models, textures, images 
 ├── src/
 │   ├── configurator/       # 3D module (implementation TBD)
 │   ├── constants/          # Immutable configuration values
