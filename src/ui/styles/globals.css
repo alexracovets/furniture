@@ -1,0 +1,19 @@
+@import '../../fonts/fonts.css';
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+
+html,
+body {
+  min-height: 100%;
+  color: var(--color-default);
+}
+
+@theme {
+  --color-background: #222222;
+  --color-white: #ffffff;
+  --color-default: #0a0a0a;
+  --color-active: #7f163d;
+  --color-border: #d1d5db;
+  --color-gray: #6b7280;
+}
